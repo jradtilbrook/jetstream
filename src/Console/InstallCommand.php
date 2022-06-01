@@ -148,7 +148,8 @@ class InstallCommand extends Command
 
         // Tailwind Configuration...
         copy(__DIR__.'/../../stubs/livewire/tailwind.config.js', base_path('tailwind.config.js'));
-        copy(__DIR__.'/../../stubs/livewire/webpack.mix.js', base_path('webpack.mix.js'));
+        copy(__DIR__.'/../../stubs/livewire/postcss.config.js', base_path('postcss.config.js'));
+        copy(__DIR__.'/../../stubs/livewire/vite.config.js', base_path('vite.config.js'));
 
         // Directories...
         (new Filesystem)->ensureDirectoryExists(app_path('Actions/Fortify'));
@@ -302,10 +303,9 @@ EOF;
                 '@inertiajs/progress' => '^0.2.7',
                 '@tailwindcss/forms' => '^0.5.0',
                 '@tailwindcss/typography' => '^0.5.2',
+                '@vitejs/plugin-vue' => '^2.3.3',
                 'tailwindcss' => '^3.0.0',
                 'vue' => '^3.2.31',
-                '@vue/compiler-sfc' => '^3.2.31',
-                'vue-loader' => '^17.0.0',
             ] + $packages;
         });
 
@@ -318,7 +318,8 @@ EOF;
 
         // Tailwind Configuration...
         copy(__DIR__.'/../../stubs/inertia/tailwind.config.js', base_path('tailwind.config.js'));
-        copy(__DIR__.'/../../stubs/inertia/webpack.mix.js', base_path('webpack.mix.js'));
+        copy(__DIR__.'/../../stubs/inertia/postcss.config.js', base_path('postcss.config.js'));
+        copy(__DIR__.'/../../stubs/inertia/vite.config.js', base_path('vite.config.js'));
 
         // Directories...
         (new Filesystem)->ensureDirectoryExists(app_path('Actions/Fortify'));
@@ -508,11 +509,9 @@ EOF;
             return [
                 '@inertiajs/server' => '^0.1.0',
                 '@vue/server-renderer' => '^3.2.31',
-                'webpack-node-externals' => '^3.0.0',
             ] + $packages;
         });
 
-        copy(__DIR__.'/../../stubs/inertia/webpack.ssr.mix.js', base_path('webpack.ssr.mix.js'));
         copy(__DIR__.'/../../stubs/inertia/resources/js/ssr.js', resource_path('js/ssr.js'));
 
         (new Process([$this->phpBinary(), 'artisan', 'vendor:publish', '--provider=Inertia\ServiceProvider', '--force'], base_path()))
@@ -524,7 +523,8 @@ EOF;
         copy(__DIR__.'/../../stubs/inertia/app/Http/Middleware/HandleInertiaRequests.php', app_path('Http/Middleware/HandleInertiaRequests.php'));
 
         $this->replaceInFile("'enabled' => false", "'enabled' => true", config_path('inertia.php'));
-        $this->replaceInFile('mix --production', 'mix --production --mix-config=webpack.ssr.mix.js && mix --production', base_path('package.json'));
+        $this->replaceInFile('vite build', 'vite build --ssr && vite build', base_path('package.json'));
+        $this->replaceInFile('/storage/*.key', '/storage/ssr'.PHP_EOL.'/storage/*.key', base_path('.gitignore'));
     }
 
     /**
